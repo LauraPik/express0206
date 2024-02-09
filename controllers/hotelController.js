@@ -1,96 +1,135 @@
 const fs = require('fs');
+const Hotel = require('./../models/hotelModel');
+
+// hotel Data
 const data = fs.readFileSync("./data/hotels.json");
 const dataPars = JSON.parse(data);
 
 
   // Callbacks
   
-exports.getAllHotels = (req, res) => {
+exports.getAllHotels = async (req, res) => {
+    try{
+      const hotels = await Hotel.find();
       res
       .status(200).json({
         status: "sucess",
+        results: hotels.length,
         data: {
-          status: "Succsess",
-          // paduoti ilgi, kiek yra
-          result: dataPars.name,
-          // sukuria, kaip vadinasi objekto duomenys
-          data: {
-            dataPars,
-          },
+          hotels
         },
       });
+
+    }catch(err){
+      res.status(404).json({
+        status: 'failed',
+        message: err
+      })
+
     }
-exports.createHotel = (req, res) => {
-      const newId = dataPars[dataPars.length - 1].id + 1;
-    
-      // prideda prie objekto id
-      const hotelData = Object.assign({ id: newId }, req.body);
-      dataPars.push(hotelData);
-      fs.writeFile(
-        `${__dirname}/data/hotels.json`,
-        JSON.stringify(dataPars, null, '\t'),
-        (err) => {
-          res.status(201)
+      
+    }
+
+
+
+exports.createHotel = async(req, res) => {
+     try{
+      const newHotel = await Hotel.create(req.body);
+      res.status(201)
           .json({
             status: "success",
             message: "New hote created",
-            data: hotelData,
+            data: newHotel,
           });
-        }
-      );
+
+     }catch(err){
+      res.status(404).json({
+        status: 'failed',
+        message: err
+      })
+      
+     }
+      
     }
     
-exports.getHotel = (req, res) => {
-      // jei yra viena eilute return ir skliausteliu
-      const hotel = dataPars.find((hotel) => hotel.id == req.params.id);
-      res
-      .status(200).json({
-        status: "success",
+exports.getHotel = async (req, res) => {
+  try{
+    const hotel = await Hotel.findById(req.params.id);
+
+    console.log(hotel)
+    res
+    .status(200).json({
+      status: "success",
+        // paduoti ilgi, kiek yra
         data: {
-          // paduoti ilgi, kiek yra
-          data: {
-            hotel,
-          },
-        },
-      });
+          hotel
+        }
+    });
+
+  }catch(err){
+    res.status(404).json({
+      status: 'failed',
+      message: err
+    })
+
+
+  }
+      // jei yra viena eilute return ir skliausteliu
+      
+     
     }
     
     
-exports.updateHotel = (req, res)=>{
-      res.status(200)
+exports.updateHotel = async(req, res)=>{
+  // findandupdate mongo db funkcija, nekurta
+  try{
+    const hotel = await Hotel.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+
+    });
+    res.status(200)
       .json({
         status: "success",
-        message: "New hote Updated",
-        data:'<Updated>'
+        message: "Hotel Updated",
+        data:{
+          hotel
+
+        }
       });
-    
-    }
+  }catch(err){
+    res.status(404).json({
+      status: 'failed',
+      message: err
+    })
+   
+  };
+       
+}
     
     
     // __________________Update, naudojamas metodas patch
     
-exports.deleteHotel = (req, res)=>{
-      res.status(200)
+exports.deleteHotel = async (req, res)=>{
+  try{
+    await Hotel.findOneAndDelete(req.params.id);
+    res.status(200)
       .json({
         status: "success",
-        message: "New hote Updated",
+        message: "Hotel is deleted",
         data: null
       });
+
+  }catch(err){
+    res.status(404).json({
+      status: 'failed',
+      message: err
+    })
+
+  }
+      
     }
 
-exports.checkHotel = (req, res, next)=> {
-      const hotel = dataPars.find((hotel) => hotel.id == req.params.id);
-      if (!hotel) {
-        res.status(404).json({
-          status: "Failed",
-          data: {
-            message: "Nerasta",
-            // paduoti ilgi, kiek yra
-          },
-        });
-    
-        return;
-      }
-    
-      next();
-    }
+
+// tikrina kontroleris, kuris id is json failo
+// middileweare nereikia funkcijos, kuri buvo checkId

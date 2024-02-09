@@ -6,7 +6,7 @@ const hotelController = require('./../controllers/hotelController');
 
 
   
-router.param('id', hotelController.checkHotel)
+// router.param('id', hotelController.checkHotel)
 
 router
 .route('/')

@@ -8,43 +8,14 @@ const DB = process.env.DATABASE.replace('<password>', process.env.DATABASE_PASSW
 
 mongoose.connect(DB)
 .then(con=>{
-  console.log(con.connection);
+
+ 
   console.log("Connected to DATABASE")
-})
-
-// ---DB demo/
-// sukuriame schema
-
-const hotelShema = new mongoose.Schema({
-  name:{
-    type: String,
-    required: [true, 'A hotel must have name'],
-    unique: true
-  },
-  address:{
-    type: String,
-    require:[true, 'Must have adress']
-  },
-  room_price:{
-    type: Number,
-    require:[true, 'A hotel must have price']
-  }
+}).catch((err) => {
+  console.error('erroras',err);
 });
 
-// musu modelis
-const Hotel = mongoose.model('Hotel', hotelShema);
 
-const testHotel = new Hotel({
-  "name":"Grand Hotel ++++",
-  "address":"123 djklafna",
-  "room_price":200
-});
-
-testHotel.save()
-.then(doc=>console.log(doc))
-.catch(err=>{
-  console.log(err)
-})
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
