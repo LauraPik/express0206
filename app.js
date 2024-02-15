@@ -1,19 +1,22 @@
 const express = require("express");
 
 const router = express.Router();
-// parsinasi, kai naudojame middleweare naudojame use
+
 const app = express();
-// susimportavau
-const hotelsRoutes = require('./routes/hotelRoutes')
+
+const hotelsRoutes = require('./routes/hotelRoutes');
+const UserRoutes = require('./routes/userRoutes')
+
 app.use(express.json());
 
 
 const morgan = require('morgan');
 
 app.use(morgan('dev'));
-// Mouting Router, antras parametras naudoju, tai ka susinstaliavau
-app.use('/api/v1/hotels', hotelsRoutes);
 
-// _________
+app.use('/api/v1/hotels', hotelsRoutes);
+app.use('/api/v1/users', UserRoutes);
+
+
 
 module.exports = app;
